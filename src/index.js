@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import createNavigator from './routes';
 import './config/ReactotronConfig';
 import './config/DevTools';
 
-const App = () => (
-  <View>
-    <Text>Testando react native</Text>
-  </View>
-);
+const App = () => {
+  const Routes = createNavigator();
+  return <Routes />;
+};
 
 export default App;
