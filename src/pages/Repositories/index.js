@@ -21,17 +21,13 @@ export default class Repositories extends Component {
       repositories: [],
       repoName: '',
       loading: false,
+      loadingList: true,
       refreshing: false,
     };
   }
 
   async componentDidMount() {
-    const repositories = await this.loadRepositories();
-    if (repositories) {
-      this.setState({
-        repositories,
-      });
-    }
+    await this.loadRepositories();
   }
 
   saveRepo = async (repo) => {
@@ -54,10 +50,14 @@ export default class Repositories extends Component {
   }
 
   loadRepositories = async () => {
-    const repos = await AsyncStorage.getItem('@Githuber:repositories');
-    console.tron.log(repos);
-    const parsedRepos = JSON.parse(repos);
-    return parsedRepos;
+    this.setState({ refreshing: true });
+    const repositories = await AsyncStorage.getItem('@Githuber:repositories');
+    const parsedRepos = JSON.parse(repositories);
+    this.setState({
+      repositories: parsedRepos || [],
+      loadingList: false,
+      refreshing: false,
+    });
   }
 
   renderItem = ({ item }) => <RepositoryItem repository={item} />
@@ -69,14 +69,14 @@ export default class Repositories extends Component {
         data={repositories}
         keyExtractor={item => String(item.id)}
         renderItem={this.renderItem}
-        onRefresh={this.addRepository}
+        onRefresh={this.loadRepositories}
         refreshing={refreshing}
       />
     );
   };
 
   render() {
-    const { repoName, loading } = this.state;
+    const { repoName, loading, loadingList } = this.state;
     return (
       <View style={styles.container}>
         <Header title="GitIssues" />
@@ -96,10 +96,12 @@ export default class Repositories extends Component {
             style={styles.button}
             onPress={this.addRepository}
           >
-            <Icon name="plus" size={25} style={styles.icon} />
+            {loading
+              ? (<ActivityIndicator size="small" style={styles.formLoading} />)
+              : (<Icon name="plus" size={20} style={styles.icon} />)}
           </TouchableOpacity>
         </View>
-        {loading
+        {loadingList
           ? <ActivityIndicator style={styles.loading} />
           : this.renderList()
         }

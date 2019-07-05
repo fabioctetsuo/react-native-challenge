@@ -1,11 +1,25 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import PropTypes from 'prop-types';
+import { withNavigation } from 'react-navigation';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './styles';
 
-const Repository = ({ repository }) => (
-  <View style={styles.container}>
+const Repository = ({ repository, navigation }) => (
+  <TouchableOpacity
+    style={styles.container}
+    onPress={() => {
+      navigation.navigate('Issues', {
+        organizationName: repository.owner.login,
+        repositoryName: repository.name,
+      });
+    }}
+  >
     <View style={styles.information}>
       <Image style={styles.avatar} source={{ uri: repository.owner.avatar_url }} />
       <View style={styles.infoContainer}>
@@ -14,7 +28,7 @@ const Repository = ({ repository }) => (
       </View>
     </View>
     <Icon name="chevron-right" size={20} />
-  </View>
+  </TouchableOpacity>
 );
 
 Repository.propTypes = {
@@ -25,6 +39,7 @@ Repository.propTypes = {
       login: PropTypes.string,
     }),
   }).isRequired,
+  navigation: PropTypes.shape().isRequired,
 };
 
-export default Repository;
+export default withNavigation(Repository);
